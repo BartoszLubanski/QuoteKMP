@@ -16,7 +16,7 @@ class QuoteRepository(
     fun observeQuotes(): Flow<List<Quote>> {
         return database.quoteQueries.selectAll()
             .asFlow()
-            .mapToList(Dispatchers.IO)
+            .mapToList(Dispatchers.Default)
             .map { entities ->
                 entities.map { entity ->
                     Quote(id = entity.id.toInt(), quote = entity.quote, author = entity.author)
