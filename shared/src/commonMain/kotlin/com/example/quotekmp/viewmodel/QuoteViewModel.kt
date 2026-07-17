@@ -10,10 +10,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+data class QuoteUiState(
+    val quote: Quote,
+    val isFromCache: Boolean
+)
+
 class QuoteViewModel(private val repository: QuoteRepository) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<Quote?>(null)
-    val uiState: StateFlow<Quote?> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<QuoteUiState?>(null)
+    val uiState: StateFlow<QuoteUiState?> = _uiState.asStateFlow()
 
     init {
         refresh()
@@ -22,7 +27,13 @@ class QuoteViewModel(private val repository: QuoteRepository) : ViewModel() {
     fun refresh() {
         viewModelScope.launch {
             val fetched = repository.refreshQuote()
-            _uiState.value = fetched ?: repository.observeQuotes().first().firstOrNull()
+            _uiState.value = if (fetched != null) {
+                QuoteUiState(quote = fetched, isFromCache = false)
+            } else {
+                repository.observeQuotes().first().randomOrNull()?.let { cached ->
+                    QuoteUiState(quote = cached, isFromCache = true)
+                }
+            }
         }
     }
 }

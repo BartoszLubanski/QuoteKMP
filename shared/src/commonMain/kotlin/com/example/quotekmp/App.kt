@@ -33,13 +33,21 @@ fun App() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            val currentQuote = quote
-            if (currentQuote == null) {
+            val currentState = quote
+            if (currentState == null) {
                 Text("Loading...")
             } else {
-                Text(text = "\"${currentQuote.quote}\"")
+                Text(text = "\"${currentState.quote.quote}\"")
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "— ${currentQuote.author}", fontStyle = FontStyle.Italic)
+                Text(text = "— ${currentState.quote.author}", fontStyle = FontStyle.Italic)
+                if (currentState.isFromCache) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Offline · showing cached quote",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
