@@ -24,16 +24,17 @@ class QuoteRepository(
             }
     }
 
-    suspend fun refreshQuote() {
-        try {
+    suspend fun refreshQuote(): Quote? {
+        return try {
             val quote = api.getRandomQuote()
             database.quoteQueries.insertQuote(
                 id = quote.id.toLong(),
                 quote = quote.quote,
                 author = quote.author
             )
+            quote
         } catch (e: Exception) {
-           // No network — do nothing, observeQuotes() keeps emitting cached data anyway
+            null
         }
     }
 }
