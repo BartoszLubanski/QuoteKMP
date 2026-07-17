@@ -74,6 +74,14 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+
+        getByName("androidHostTest") {
+            dependencies {
+                implementation(libs.kotlin.testJunit)
+                implementation(libs.sqldelight.sqlite.driver)
+                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
     }
 }
 
