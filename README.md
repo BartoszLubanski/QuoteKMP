@@ -2,6 +2,10 @@
 
 A Kotlin Multiplatform app (Android + iOS) that fetches a random quote from a public API, with offline-first caching.
 
+## Screenshot
+
+![QuoteKMP app screenshot](screenshots/app_screenshot.png)
+
 ## Features
 
 - Fetches a random quote from [dummyjson.com](https://dummyjson.com/quotes/random)
