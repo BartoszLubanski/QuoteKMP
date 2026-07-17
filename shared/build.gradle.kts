@@ -65,6 +65,7 @@ kotlin {
             implementation(libs.sqldelight.coroutines.extensions)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.koin.core)
+            implementation(libs.koin.compose)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
