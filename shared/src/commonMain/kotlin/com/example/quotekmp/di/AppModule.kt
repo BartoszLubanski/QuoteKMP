@@ -8,9 +8,10 @@ import org.koin.core.context.startKoin
 import org.koin.core.KoinApplication
 import org.koin.dsl.module
 import com.example.quotekmp.viewmodel.QuoteViewModel
+import com.example.quotekmp.network.KtorQuoteApi
 
 val commonModule = module {
-    single { QuoteApi() }
+    single<QuoteApi> { KtorQuoteApi() }
     single { QuoteDatabase(get<DatabaseDriverFactory>().createDriver()) }
     single { QuoteRepository(get(), get()) }
     single { QuoteViewModel(get()) }

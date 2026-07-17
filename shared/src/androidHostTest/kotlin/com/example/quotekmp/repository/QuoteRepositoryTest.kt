@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import com.example.quotekmp.network.KtorQuoteApi
 
 class QuoteRepositoryTest {
 
@@ -17,7 +18,7 @@ class QuoteRepositoryTest {
         val database = QuoteDatabase(driver)
         database.quoteQueries.insertQuote(id = 1L, quote = "Test quote", author = "Test Author")
 
-        val repository = QuoteRepository(api = QuoteApi(), database = database)
+        val repository = QuoteRepository(api = KtorQuoteApi(), database = database)
         val quotes = repository.observeQuotes().first()
 
         assertEquals(1, quotes.size)

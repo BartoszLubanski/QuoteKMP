@@ -8,14 +8,18 @@ import io.ktor.client.request.get
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-class QuoteApi {
+interface QuoteApi {
+    suspend fun getRandomQuote(): Quote
+}
+
+class KtorQuoteApi : QuoteApi {
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }
     }
 
-    suspend fun getRandomQuote(): Quote {
+    override suspend fun getRandomQuote(): Quote {
         return client.get("https://dummyjson.com/quotes/random").body()
     }
 }
