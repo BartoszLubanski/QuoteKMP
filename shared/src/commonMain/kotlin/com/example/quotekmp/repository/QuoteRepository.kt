@@ -5,6 +5,7 @@ import app.cash.sqldelight.coroutines.mapToList
 import com.example.quotekmp.db.QuoteDatabase
 import com.example.quotekmp.model.Quote
 import com.example.quotekmp.network.QuoteApi
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -33,6 +34,8 @@ class QuoteRepository(
                 author = quote.author
             )
             quote
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             null
         }
