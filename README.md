@@ -4,7 +4,7 @@ A Kotlin Multiplatform app (Android + iOS) that fetches a random quote from a pu
 
 ## Screenshot
 
-![QuoteKMP app screenshot](screenshots/app_screenshot.png)
+<img src="screenshots/app_screenshot.png" alt="QuoteKMP app screenshot" width="300">
 
 ## Features
 
