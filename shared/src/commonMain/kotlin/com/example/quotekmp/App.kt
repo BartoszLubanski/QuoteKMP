@@ -1,6 +1,8 @@
 package com.example.quotekmp
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +14,8 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,7 +29,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,12 +47,26 @@ private val QuoteColorScheme = lightColorScheme(
     onPrimary = Color(0xFFFFFFFF),
     secondary = Accent,
     onSecondary = Color(0xFFFFFFFF),
-    background = Color(0xFFFAF9F6),
+    background = Color(0xFFFFFFFF),
     onBackground = Color(0xFF1A1A22),
-    surface = Color(0xFFFAF9F6),
+    surface = Color(0xFFFFFFFF),
     onSurface = Color(0xFF1A1A22),
-    surfaceVariant = Color(0xFFF0EFEA),
+    surfaceVariant = Color(0xFFFFFFFF),
     onSurfaceVariant = Color(0xFF6B6B76)
+)
+
+private val BackgroundGradient = Brush.linearGradient(
+    colors = listOf(
+        Color(0xFFD6E0FF),
+        Color(0xFFFFF3E0)
+    )
+)
+
+private val ButtonGradient = Brush.horizontalGradient(
+    colors = listOf(
+        Color(0xFF6E8EFF),
+        Color(0xFFA78BFA)
+    )
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,88 +77,98 @@ fun App() {
         val viewModel = koinInject<QuoteViewModel>()
         val state by viewModel.uiState.collectAsState()
 
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            "QUOTEKMP",
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 2.sp
-                        )
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        titleContentColor = MaterialTheme.colorScheme.onBackground
-                    )
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.background
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    val currentState = state
-                    if (currentState == null) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    } else {
-                        Text(
-                            text = "\u201C",
-                            fontSize = 40.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = currentState.quote.quote,
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Normal,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Text(
-                            text = currentState.quote.author.uppercase(),
-                            style = MaterialTheme.typography.labelLarge,
-                            letterSpacing = 1.5.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        if (currentState.isFromCache) {
-                            Spacer(modifier = Modifier.height(20.dp))
-                            AssistChip(
-                                onClick = {},
-                                label = { Text("OFFLINE · CACHED") },
-                                colors = AssistChipDefaults.assistChipColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                    labelColor = MaterialTheme.colorScheme.primary
-                                ),
-                                border = null
+        Box(modifier = Modifier.fillMaxSize().background(BackgroundGradient)) {
+            Scaffold(
+                topBar = {
+                    CenterAlignedTopAppBar(
+                        title = {
+                            Text(
+                                "QUOTEKMP",
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 2.sp
                             )
+                        },
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = Color.Transparent,
+                            titleContentColor = MaterialTheme.colorScheme.onBackground
+                        )
+                    )
+                },
+                containerColor = Color.Transparent
+            ) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        val currentState = state
+                        if (currentState == null) {
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        } else {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(20.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color.White
+                                ),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(28.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = currentState.quote.quote,
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        textAlign = TextAlign.Center,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = currentState.quote.author.uppercase(),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        letterSpacing = 1.5.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    if (currentState.isFromCache) {
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                        AssistChip(
+                                            onClick = {},
+                                            label = { Text("OFFLINE · CACHED") },
+                                            colors = AssistChipDefaults.assistChipColors(
+                                                containerColor = Color(0xFFEFF2FF),
+                                                labelColor = MaterialTheme.colorScheme.primary
+                                            )
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                Button(
-                    onClick = { viewModel.refresh() },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-                    shape = RoundedCornerShape(28.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                ) {
-                    Text("NEW QUOTE", fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                    Button(
+                        onClick = { viewModel.refresh() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 24.dp)
+                            .background(brush = ButtonGradient, shape = RoundedCornerShape(28.dp)),
+                        shape = RoundedCornerShape(28.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        )
+                    ) {
+                        Text("NEW QUOTE", fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                    }
                 }
             }
         }
