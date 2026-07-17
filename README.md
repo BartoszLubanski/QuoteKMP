@@ -1,31 +1,44 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# QuoteKMP
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+A Kotlin Multiplatform app (Android + iOS) that fetches a random quote from a public API, with offline-first caching.
 
-* [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
+## Features
 
-### Running the apps
+- Fetches a random quote from [dummyjson.com](https://dummyjson.com/quotes/random)
+- Caches quotes locally with SQLDelight — the app works fully offline after the first successful fetch
+- Falls back to a cached quote when there is no network, with a clear "Offline · cached" indicator
+- Shared UI built once with Compose Multiplatform, running on both Android and iOS
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+## Tech stack
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+- **Kotlin Multiplatform** — shared business logic across Android and iOS
+- **Compose Multiplatform** — shared UI
+- **Ktor** — HTTP client for fetching quotes
+- **SQLDelight** — typed local database, used for offline caching
+- **Koin** — dependency injection
+- **Kotlin Coroutines / Flow** — asynchronous and reactive state management
 
-### Running tests
+## Architecture
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+- `shared/` — common business logic
+  - `network/` — `QuoteApi` interface + Ktor-based implementation
+  - `db/` — SQLDelight schema and `DatabaseDriverFactory` (`expect`/`actual` per platform)
+  - `repository/` — `QuoteRepository`, combining network and cache with an offline-first fallback
+  - `viewmodel/` — `QuoteViewModel`, exposing UI state as `StateFlow`
+  - `di/` — Koin modules (common + per-platform)
+- `androidApp/` — Android entry point (`Application`, `MainActivity`)
+- `iosApp/` — iOS entry point (SwiftUI host for the shared Compose UI)
 
-- Android tests: `./gradlew :shared:testAndroidHostTest`
-- iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
+## Running the app
 
----
+- **Android:** open the project in Android Studio and run the `androidApp` configuration, or run `./gradlew :androidApp:assembleDebug` in a terminal.
+- **iOS:** open `/iosApp` in Xcode and run it from there.
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## Running tests
+
+Run `./gradlew :shared:testAndroidHostTest` in a terminal, or use the run button in the IDE's editor gutter.
+
+Covers:
+- JSON deserialization of the `Quote` model
+- Repository mapping between the local database and the domain model
+- ViewModel fallback to cached data when the network request fails
