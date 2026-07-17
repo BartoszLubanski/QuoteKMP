@@ -63,6 +63,7 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.sqldelight.runtime)
             implementation(libs.sqldelight.coroutines.extensions)
+            implementation(libs.kotlinx.coroutines.core)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
