@@ -1,0 +1,15 @@
+CREATE TABLE QuoteEntity (
+    id INTEGER NOT NULL PRIMARY KEY,
+    quote TEXT NOT NULL,
+    author TEXT NOT NULL
+);
+
+selectAll:
+SELECT * FROM QuoteEntity;
+
+insertQuote:
+INSERT OR REPLACE INTO QuoteEntity(id, quote, author)
+VALUES (?, ?, ?);
+
+deleteAll:
+DELETE FROM QuoteEntity;
