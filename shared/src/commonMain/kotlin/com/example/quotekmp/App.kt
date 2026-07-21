@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -89,7 +88,7 @@ fun App() {
                                 letterSpacing = 2.sp
                             )
                         },
-                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = Color.Transparent,
                             titleContentColor = MaterialTheme.colorScheme.onBackground
                         )
@@ -109,8 +108,7 @@ fun App() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        val currentState = state
-                        when (currentState) {
+                        when (val currentState = state) {
                             is QuoteUiState.Loading -> {
                                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                             }
