@@ -23,6 +23,10 @@ private class FailingQuoteApi : QuoteApi {
     }
 }
 
+private class SucceedingQuoteApi(private val quote: Quote) : QuoteApi {
+    override suspend fun getRandomQuote(): Quote = quote
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class QuoteViewModelTest {
 
@@ -64,5 +68,21 @@ class QuoteViewModelTest {
         val state = viewModel.uiState.first { it !is QuoteUiState.Loading }
 
         assertEquals(QuoteUiState.Empty, state)
+    }
+
+    @Test
+    fun refresh_emitsFreshQuote_whenNetworkSucceeds() = runTest {
+        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        QuoteDatabase.Schema.create(driver)
+        val database = QuoteDatabase(driver)
+
+        val fetchedQuote = Quote(id = 1, quote = "Fresh quote", author = "Fresh Author")
+        val repository = QuoteRepository(api = SucceedingQuoteApi(fetchedQuote), database = database)
+        val viewModel = QuoteViewModel(repository)
+
+        val state = viewModel.uiState.first { it is QuoteUiState.Success } as QuoteUiState.Success
+
+        assertEquals("Fresh quote", state.quote.quote)
+        assertEquals(false, state.isFromCache)
     }
 }
