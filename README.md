@@ -1,5 +1,7 @@
 # QuoteKMP
 
+![CI](https://github.com/BartoszLubanski/QuoteKMP/actions/workflows/ci.yml/badge.svg)
+
 A Kotlin Multiplatform app (Android + iOS) that fetches a random quote from a public API, with offline-first caching.
 
 ## Screenshot
