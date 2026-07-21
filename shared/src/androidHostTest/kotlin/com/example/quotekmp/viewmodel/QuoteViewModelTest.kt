@@ -16,6 +16,8 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.test.advanceUntilIdle
 
 private class FailingQuoteApi : QuoteApi {
     override suspend fun getRandomQuote(): Quote {
@@ -25,6 +27,20 @@ private class FailingQuoteApi : QuoteApi {
 
 private class SucceedingQuoteApi(private val quote: Quote) : QuoteApi {
     override suspend fun getRandomQuote(): Quote = quote
+}
+
+private class ControllableQuoteApi : QuoteApi {
+    private val pendingResponses = mutableListOf<CompletableDeferred<Quote>>()
+
+    fun resolveCall(callIndex: Int, quote: Quote) {
+        pendingResponses[callIndex].complete(quote)
+    }
+
+    override suspend fun getRandomQuote(): Quote {
+        val response = CompletableDeferred<Quote>()
+        pendingResponses.add(response)
+        return response.await()
+    }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -84,5 +100,29 @@ class QuoteViewModelTest {
 
         assertEquals("Fresh quote", state.quote.quote)
         assertEquals(false, state.isFromCache)
+    }
+
+    @Test
+    fun refresh_ignoresStaleResponse_whenCalledAgainBeforeFirstRequestCompletes() = runTest {
+        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        QuoteDatabase.Schema.create(driver)
+        val database = QuoteDatabase(driver)
+
+        val staleQuote = Quote(id = 1, quote = "Stale quote", author = "Stale Author")
+        val freshQuote = Quote(id = 2, quote = "Fresh quote", author = "Fresh Author")
+
+        val api = ControllableQuoteApi()
+        val repository = QuoteRepository(api = api, database = database)
+        val viewModel = QuoteViewModel(repository)
+
+        viewModel.refresh()
+
+        api.resolveCall(callIndex = 1, quote = freshQuote)
+        api.resolveCall(callIndex = 0, quote = staleQuote)
+
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as QuoteUiState.Success
+        assertEquals("Fresh quote", state.quote.quote)
     }
 }
