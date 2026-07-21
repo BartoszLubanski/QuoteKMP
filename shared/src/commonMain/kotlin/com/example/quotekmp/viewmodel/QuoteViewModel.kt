@@ -11,15 +11,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-data class QuoteUiState(
-    val quote: Quote,
-    val isFromCache: Boolean
-)
+sealed interface QuoteUiState {
+    data object Loading : QuoteUiState
+    data class Success(val quote: Quote, val isFromCache: Boolean) : QuoteUiState
+    data object Empty : QuoteUiState
+}
 
 class QuoteViewModel(private val repository: QuoteRepository) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<QuoteUiState?>(null)
-    val uiState: StateFlow<QuoteUiState?> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<QuoteUiState>(QuoteUiState.Loading)
+    val uiState: StateFlow<QuoteUiState> = _uiState.asStateFlow()
 
     private var refreshJob: Job? = null
 
@@ -32,10 +33,13 @@ class QuoteViewModel(private val repository: QuoteRepository) : ViewModel() {
         refreshJob = viewModelScope.launch {
             val fetched = repository.refreshQuote()
             _uiState.value = if (fetched != null) {
-                QuoteUiState(quote = fetched, isFromCache = false)
+                QuoteUiState.Success(quote = fetched, isFromCache = false)
             } else {
-                repository.observeQuotes().first().randomOrNull()?.let { cached ->
-                    QuoteUiState(quote = cached, isFromCache = true)
+                val cached = repository.observeQuotes().first().randomOrNull()
+                if (cached != null) {
+                    QuoteUiState.Success(quote = cached, isFromCache = true)
+                } else {
+                    QuoteUiState.Empty
                 }
             }
         }

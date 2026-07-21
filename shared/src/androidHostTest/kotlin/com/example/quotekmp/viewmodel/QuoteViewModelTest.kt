@@ -46,9 +46,23 @@ class QuoteViewModelTest {
         val repository = QuoteRepository(api = FailingQuoteApi(), database = database)
         val viewModel = QuoteViewModel(repository)
 
-        val state = viewModel.uiState.first { it != null }
+        val state = viewModel.uiState.first { it is QuoteUiState.Success } as QuoteUiState.Success
 
-        assertEquals("Cached quote", state?.quote?.quote)
-        assertEquals(true, state?.isFromCache)
+        assertEquals("Cached quote", state.quote.quote)
+        assertEquals(true, state.isFromCache)
+    }
+
+    @Test
+    fun refresh_emitsEmpty_whenNetworkFailsAndNoCache() = runTest {
+        val driver = JdbcSqliteDriver(JdbcSqliteDriver.IN_MEMORY)
+        QuoteDatabase.Schema.create(driver)
+        val database = QuoteDatabase(driver)
+
+        val repository = QuoteRepository(api = FailingQuoteApi(), database = database)
+        val viewModel = QuoteViewModel(repository)
+
+        val state = viewModel.uiState.first { it !is QuoteUiState.Loading }
+
+        assertEquals(QuoteUiState.Empty, state)
     }
 }

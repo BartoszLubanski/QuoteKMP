@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quotekmp.viewmodel.QuoteViewModel
 import org.koin.compose.koinInject
+import com.example.quotekmp.viewmodel.QuoteUiState
 
 private val Accent = Color(0xFF4169E1)
 
@@ -109,46 +110,54 @@ fun App() {
                         verticalArrangement = Arrangement.Center
                     ) {
                         val currentState = state
-                        if (currentState == null) {
-                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                        } else {
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(20.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color.White
-                                ),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(28.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                        when (currentState) {
+                            is QuoteUiState.Loading -> {
+                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                            }
+                            is QuoteUiState.Success -> {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(20.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                                 ) {
-                                    Text(
-                                        text = currentState.quote.quote,
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        textAlign = TextAlign.Center,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Text(
-                                        text = currentState.quote.author.uppercase(),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        letterSpacing = 1.5.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    if (currentState.isFromCache) {
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        AssistChip(
-                                            onClick = {},
-                                            label = { Text("OFFLINE · CACHED") },
-                                            colors = AssistChipDefaults.assistChipColors(
-                                                containerColor = Color(0xFFEFF2FF),
-                                                labelColor = MaterialTheme.colorScheme.primary
-                                            )
+                                    Column(
+                                        modifier = Modifier.padding(28.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = currentState.quote.quote,
+                                            style = MaterialTheme.typography.headlineSmall,
+                                            textAlign = TextAlign.Center,
+                                            color = MaterialTheme.colorScheme.onSurface
                                         )
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                        Text(
+                                            text = currentState.quote.author.uppercase(),
+                                            style = MaterialTheme.typography.labelLarge,
+                                            letterSpacing = 1.5.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        if (currentState.isFromCache) {
+                                            Spacer(modifier = Modifier.height(16.dp))
+                                            AssistChip(
+                                                onClick = {},
+                                                label = { Text("OFFLINE · CACHED") },
+                                                colors = AssistChipDefaults.assistChipColors(
+                                                    containerColor = Color(0xFFEFF2FF),
+                                                    labelColor = MaterialTheme.colorScheme.primary
+                                                )
+                                            )
+                                        }
                                     }
                                 }
+                            }
+                            is QuoteUiState.Empty -> {
+                                Text(
+                                    text = "No internet connection and no cached quotes yet.\nTap \"New Quote\" to try again.",
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }
