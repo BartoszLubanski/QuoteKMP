@@ -2,12 +2,18 @@ package com.example.quotekmp.repository
 
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.example.quotekmp.db.QuoteDatabase
+import com.example.quotekmp.model.Quote
 import com.example.quotekmp.network.QuoteApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import com.example.quotekmp.network.KtorQuoteApi
+
+private class FakeQuoteApi : QuoteApi {
+    override suspend fun getRandomQuote(): Quote {
+        throw NotImplementedError("Not used in this test")
+    }
+}
 
 class QuoteRepositoryTest {
 
@@ -18,7 +24,7 @@ class QuoteRepositoryTest {
         val database = QuoteDatabase(driver)
         database.quoteQueries.insertQuote(id = 1L, quote = "Test quote", author = "Test Author")
 
-        val repository = QuoteRepository(api = KtorQuoteApi(), database = database)
+        val repository = QuoteRepository(api = FakeQuoteApi(), database = database)
         val quotes = repository.observeQuotes().first()
 
         assertEquals(1, quotes.size)
