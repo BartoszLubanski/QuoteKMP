@@ -11,6 +11,7 @@ A Kotlin Multiplatform app (Android + iOS) that fetches a random quote from a pu
 - Fetches a random quote from [dummyjson.com](https://dummyjson.com/quotes/random)
 - Caches quotes locally with SQLDelight — the app works fully offline after the first successful fetch
 - Falls back to a cached quote when there is no network, with a clear "Offline · cached" indicator
+- Shows a clear message when there is no network and no cached quotes yet, instead of spinning forever
 - Shared UI built once with Compose Multiplatform, running on both Android and iOS
 
 ## Tech stack
@@ -45,4 +46,5 @@ Run `./gradlew :shared:testAndroidHostTest` in a terminal, or use the run button
 Covers:
 - JSON deserialization of the `Quote` model
 - Repository mapping between the local database and the domain model
-- ViewModel fallback to cached data when the network request fails
+- ViewModel state for all three refresh outcomes: successful fetch, fallback to a cached quote when offline, and an empty state when there is no network and no cache
+- ViewModel ignoring a stale in-flight request when `refresh()` is called again before it completes
